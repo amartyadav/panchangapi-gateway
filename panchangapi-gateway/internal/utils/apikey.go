@@ -1,5 +1,5 @@
 package utils
-import "fmt"
+
 import (
 	"github.com/google/uuid"
 )
