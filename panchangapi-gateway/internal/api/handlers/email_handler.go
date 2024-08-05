@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/smtp"
+	"panchangapi-gateway/internal/database"
 	"panchangapi-gateway/internal/models"
 
 	email "github.com/jordan-wright/email"
@@ -17,16 +18,16 @@ func VerifyEmail(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	// var exists bool
-	// err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM panchangapiusers WHERE email = $1)",
-	// 	req.Email).Scan(&exists)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database Error"})
-	// }
+	var exists bool
+	err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM panchangapiusers WHERE email = $1)",
+		req.Email).Scan(&exists)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database Error"})
+	}
 
-	// if exists {
-	// 	return c.JSON(http.StatusConflict, map[string]string{"error": "User with this email already exists"})
-	// }
+	if exists {
+		return c.JSON(http.StatusConflict, map[string]string{"error": "User with this email already exists"})
+	}
 
 	verification_code, err := nanorand.Gen(9)
 	if err != nil {
@@ -37,7 +38,7 @@ func VerifyEmail(c echo.Context) error {
 
 	e := email.NewEmail()
 	e.From = "Amartya Yo <amartyadav@gmail.com>"
-	e.To = []string{"amartyadav@live.co.uk"}
+	e.To = []string{req.Email}
 	e.Subject = "Test email go"
 	e.HTML = []byte(message)
 
