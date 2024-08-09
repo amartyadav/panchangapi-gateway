@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   p_api:
     build:
@@ -13,9 +12,14 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=amartyadavnainital15!
       - DB_NAME=panchangapi
+      - REDIS_HOST=p_redis
+      - REDIS_PORT=6379
     depends_on:
       p_db:
         condition: service_healthy
+      p_redis:
+        condition: service_started
+
   p_db:
     image: postgres:13
     environment:
@@ -32,5 +36,19 @@ services:
       timeout: 5s
       retries: 5
 
+  p_redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
+  redis_data:
