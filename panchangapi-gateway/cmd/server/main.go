@@ -42,7 +42,7 @@ func main() {
 	database.InitDB(conn_string)
 
 	// start server
-	e.Logger.Fatal(e.Start("localhost:1323"))
+	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 
 }
 
