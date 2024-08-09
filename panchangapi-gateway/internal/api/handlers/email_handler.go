@@ -19,7 +19,7 @@ func VerifyEmail(c echo.Context) error {
 	}
 
 	var exists bool
-	err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM panchangapiusers WHERE email = $1)",
+	err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)",
 		req.Email).Scan(&exists)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database Error"})
