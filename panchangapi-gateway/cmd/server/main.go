@@ -41,6 +41,12 @@ func main() {
 
 	database.InitDB(conn_string)
 
+	// init redis by loading env variables
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+
+	database.InitRedis(redisHost, redisPort)
+
 	// start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 
