@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/smtp"
+	"os"
 	"panchangapi-gateway/internal/database"
 	"panchangapi-gateway/internal/models"
 	"panchangapi-gateway/internal/utils"
@@ -14,6 +15,10 @@ import (
 )
 
 func VerifyEmail(c echo.Context) error {
+	utils.LoadEnv()
+
+	password := os.Getenv("GMAIL_APP_SPECIFIC_PASSWORD")
+	fmt.Println(password)
 	var req models.UserEmailVerificationRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
@@ -43,7 +48,7 @@ func VerifyEmail(c echo.Context) error {
 	e.Subject = "Verification Code - PanchangAPI"
 	e.HTML = []byte(message)
 
-	err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", "amartyadav@gmail.com", "vicv qihx nreq uqom", "smtp.gmail.com"))
+	err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", "amartyadav@gmail.com", password, "smtp.gmail.com"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send email"})
 	}
