@@ -28,7 +28,7 @@ func VerifyEmail(c echo.Context) error {
 	err := database.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)",
 		req.Email).Scan(&exists)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database Error"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
 	if exists {
@@ -55,5 +55,26 @@ func VerifyEmail(c echo.Context) error {
 
 	utils.StoreOtp(req.Email, verification_code)
 
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
+}
+
+func VerifyOtp(c echo.Context) error {
+	utils.LoadEnv()
+
+	var req models.UserOtpVerificationRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	verified, err := utils.VerifyOtp(req.Email, req.Otp)
+
+	if err != nil {
+		fmt.Println("[ERROR] Error verifying OTP: ", err.Error())
+	}
+
+	if verified == true {
+		return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
+	} else {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"email": req.Email})
+	}
 }
