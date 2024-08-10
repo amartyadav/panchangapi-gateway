@@ -2,20 +2,19 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"panchangapi-gateway/internal/api/handlers"
 	"panchangapi-gateway/internal/database"
+	"panchangapi-gateway/internal/utils"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
 	fmt.Println("PanchangAPI Gateway")
 
-	loadEnv()
+	utils.LoadEnv()
 
 	// init db by loading env varibles
 	dbHost := os.Getenv("DB_HOST")
@@ -23,6 +22,7 @@ func main() {
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
+
 
 	// form conn string for db
 	conn_string := fmt.Sprintf(
@@ -50,19 +50,5 @@ func main() {
 
 	// start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
-
-}
-
-func loadEnv() {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		if os.IsNotExist(err) {
-			log.Println("db.go: No .env file found, proceeding with environment variables")
-		} else {
-			log.Printf("db.go: Error loading .env file: %v", err)
-		}
-	} else {
-		log.Println("db.go: .env file loaded successfully")
-	}
 
 }

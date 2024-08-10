@@ -6,14 +6,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "1323:1323"
-    environment:
-      - DB_HOST=p_db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=amartyadavnainital15!
-      - DB_NAME=panchangapi
-      - REDIS_HOST=p_redis
-      - REDIS_PORT=6379
+    env_file:
+      - .env
     depends_on:
       p_db:
         condition: service_healthy
@@ -23,9 +17,9 @@ services:
   p_db:
     image: postgres:13
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=amartyadavnainital15!
-      - POSTGRES_DB=panchangapi
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
