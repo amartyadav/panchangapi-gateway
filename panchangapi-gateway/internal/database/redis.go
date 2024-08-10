@@ -24,3 +24,7 @@ func InitRedis(redisHost string, redisPort string) {
 
 	fmt.Println("[SUCCESS] Redis: Connection established")
 }
+
+func GetRedisClient() *redis.Client {
+	return redisClient
+}

@@ -17,14 +17,6 @@ func main() {
 
 	loadEnv()
 
-	e := echo.New()
-
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "PanchangAPI Gateway")
-	})
-
-	e.GET("/sendverificationemail", handlers.VerifyEmail)
-
 	// init db by loading env varibles
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
@@ -46,6 +38,15 @@ func main() {
 	redisPort := os.Getenv("REDIS_PORT")
 
 	database.InitRedis(redisHost, redisPort)
+
+	// setting up echo and routes, handlers
+	e := echo.New()
+
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "PanchangAPI Gateway")
+	})
+
+	e.GET("/sendverificationemail", handlers.VerifyEmail)
 
 	// start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))

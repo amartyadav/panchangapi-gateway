@@ -6,6 +6,7 @@ import (
 	"net/smtp"
 	"panchangapi-gateway/internal/database"
 	"panchangapi-gateway/internal/models"
+	"panchangapi-gateway/internal/utils"
 
 	email "github.com/jordan-wright/email"
 	"github.com/labstack/echo/v4"
@@ -34,18 +35,20 @@ func VerifyEmail(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification code"})
 	}
 
-	message := fmt.Sprintf("<h1>Fancy heading html</h1><br/><h3>Your verification code is <h1>%s</h1>.</h3>", verification_code)
+	message := fmt.Sprintf("<h1>PanchangAPI Verificaiton</h1><br/><h3>Your verification code is <h1>%s</h1>.</h3>", verification_code)
 
 	e := email.NewEmail()
-	e.From = "Amartya Yo <amartyadav@gmail.com>"
+	e.From = "PanchangAPI <amartyadav@gmail.com>"
 	e.To = []string{req.Email}
-	e.Subject = "Test email go"
+	e.Subject = "Verification Code - PanchangAPI"
 	e.HTML = []byte(message)
 
 	err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", "amartyadav@gmail.com", "vicv qihx nreq uqom", "smtp.gmail.com"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send email"})
 	}
+
+	utils.StoreOtp(req.Email, verification_code)
 
 	return c.NoContent(http.StatusOK)
 }
