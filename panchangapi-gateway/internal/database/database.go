@@ -12,12 +12,12 @@ var DB *sql.DB
 func InitDB(databaseString string) {
 	var err error
 
-	db, err := sql.Open("postgres", databaseString)
+	DB, err = sql.Open("postgres", databaseString)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	err = db.Ping()
+	err = DB.Ping()
 
 	if err != nil {
 		panic(err.Error())
