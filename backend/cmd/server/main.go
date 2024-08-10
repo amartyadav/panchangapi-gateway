@@ -23,7 +23,6 @@ func main() {
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 
-
 	// form conn string for db
 	conn_string := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
@@ -47,6 +46,7 @@ func main() {
 	})
 
 	e.GET("/sendverificationemail", handlers.VerifyEmail)
+	e.GET("/verifyotp", handlers.VerifyOtp)
 
 	// start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
