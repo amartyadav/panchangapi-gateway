@@ -2,7 +2,7 @@
 
 **This project is currently in a pre-release stage and is not ready for production use.**
 
-We are actively developing this API gateway in public, and the codebase is subject to significant changes. Public contributions are not accepted. If you wish to contribute, please contact me at my [email](mailto:[contact@amartyadav.tech]) please be aware that the project may not yet be stable or fully functional.
+We are actively developing this API gateway in public, and the codebase is subject to significant changes. Public contributions are not accepted. If you wish to contribute, please contact me at my [email](mailto:contact@amartyadav.tech) please be aware that the project may not yet be stable or fully functional.
 
 Stay tuned for updates as we continue to work towards a stable release!
 
@@ -64,7 +64,7 @@ We might open source the core Panchang API in the future. Stay tuned for updates
 
 ## Contact
 
-For any questions or suggestions, feel free to reach out at my [email](mailto:[contact@amartyadav.tech]) or open an issue.
+For any questions or suggestions, feel free to reach out at my [email](mailto:contact@amartyadav.tech) or open an issue.
 
 ---
 
