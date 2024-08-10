@@ -18,7 +18,7 @@ func VerifyEmail(c echo.Context) error {
 	utils.LoadEnv()
 
 	password := os.Getenv("GMAIL_APP_SPECIFIC_PASSWORD")
-	fmt.Println(password)
+
 	var req models.UserEmailVerificationRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
