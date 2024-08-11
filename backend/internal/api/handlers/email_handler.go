@@ -35,27 +35,39 @@ func VerifyEmail(c echo.Context) error {
 		return c.JSON(http.StatusConflict, map[string]string{"error": "User with this email already exists"})
 	}
 
-	verification_code, err := nanorand.Gen(9)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification code"})
+	isSignupBlockedForEmail, signupAttemptErr := utils.IsSignupAttemptBlocked(req.Email)
+
+	if signupAttemptErr != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": signupAttemptErr.Error()})
 	}
 
-	message := fmt.Sprintf("<h1>PanchangAPI Verificaiton</h1><br/><h3>Your verification code is <h1>%s</h1>.</h3>", verification_code)
+	if isSignupBlockedForEmail == true {
+		return c.JSON(http.StatusTooManyRequests, map[string]string{"error": "Too many sign-up requests.\nBlocked for some time.\nTry again later."})
+	} else {
+		verification_code, err := nanorand.Gen(9)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification code"})
+		}
 
-	e := email.NewEmail()
-	e.From = "PanchangAPI <amartyadav@gmail.com>"
-	e.To = []string{req.Email}
-	e.Subject = "Verification Code - PanchangAPI"
-	e.HTML = []byte(message)
+		message := fmt.Sprintf("<h1>PanchangAPI Verificaiton</h1><br/><h3>Your verification code is <h1>%s</h1>.</h3>", verification_code)
 
-	err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", "amartyadav@gmail.com", password, "smtp.gmail.com"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send email"})
+		e := email.NewEmail()
+		e.From = "PanchangAPI <amartyadav@gmail.com>"
+		e.To = []string{req.Email}
+		e.Subject = "Verification Code - PanchangAPI"
+		e.HTML = []byte(message)
+
+		err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", "amartyadav@gmail.com", password, "smtp.gmail.com"))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send email"})
+		}
+
+		utils.AddSignupAttempt(req.Email)
+
+		utils.StoreOtp(req.Email, verification_code)
+
+		return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
 	}
-
-	utils.StoreOtp(req.Email, verification_code)
-
-	return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
 }
 
 func VerifyOtp(c echo.Context) error {
