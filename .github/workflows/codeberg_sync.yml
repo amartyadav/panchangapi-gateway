@@ -1,0 +1,25 @@
+name: Sync to Codeberg
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.CODEBERG_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa codeberg.org >> ~/.ssh/known_hosts
+
+      - name: Push to Codeberg
+        run: |
+          git remote add codeberg git@codeberg.org:arv/panchangapi-gateway.git
+          git push -u codeberg main --force
