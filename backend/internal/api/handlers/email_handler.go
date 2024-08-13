@@ -95,10 +95,9 @@ func VerifyOtp(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session status"})
 	}
 
-	verified, err := utils.VerifyOtp(email, req.Otp)
+	verified, err := utils.VerifyOtp(req.SessionToken, req.Otp)
 
 	if err != nil {
-		fmt.Println("[ERROR] Error verifying OTP: ", err.Error())
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error verifying OTP"})
 	}
 
