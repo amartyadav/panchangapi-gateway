@@ -56,7 +56,7 @@ func HashOTP(otp string) string {
 	return string(hashedOTP)
 }
 
-func VerifyOtp(email, otp string) (bool, err) {
+func VerifyOtp(email, otp string) (bool, error) {
 	redisClient := database.GetRedisClient()
 
 	storedOtp, err := redisClient.Get(context.Background(), "otp:"+email).Result()
