@@ -13,7 +13,6 @@ import (
 
 func StoreSessionData(sessionToken, email, hashedOTP, status string) error {
 	redisClient := database.GetRedisClient()
-
 	err := redisClient.HSet(context.Background(), "session:"+sessionToken, "email", email, "otp", hashedOTP, "status", status).Err()
 
 	if err != nil {
@@ -33,11 +32,13 @@ func GetSessionData(sessionToken string) (string, string, error) {
 	}
 
 	email, ok := data["email"]
+
 	if !ok {
 		return "", "", fmt.Errorf("[ERROR] Invalid session")
 	}
 
 	status, ok := data["status"]
+
 	if !ok {
 		return "", "", fmt.Errorf("[ERROR] Invalid session")
 	}
@@ -56,17 +57,26 @@ func HashOTP(otp string) string {
 	return string(hashedOTP)
 }
 
-func VerifyOtp(email, otp string) (bool, error) {
+func VerifyOtp(sessionToken, otp string) (bool, error) {
 	redisClient := database.GetRedisClient()
 
-	storedOtp, err := redisClient.Get(context.Background(), "otp:"+email).Result()
+	storedHashedOtp, err := redisClient.HGet(context.Background(), "session:"+sessionToken, "otp").Result()
 
 	if err == redis.Nil {
-		fmt.Println("[ERROR] OTP for this email not found")
 		return false, nil
 	} else if err != nil {
 		return false, err
 	}
 
-	return storedOtp == otp, nil
+	err = bcrypt.CompareHashAndPassword([]byte(storedHashedOtp), []byte(otp))
+
+	if err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+
+	return true, nil
 }
