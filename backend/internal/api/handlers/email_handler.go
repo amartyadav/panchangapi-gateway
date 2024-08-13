@@ -49,6 +49,16 @@ func VerifyEmail(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification code"})
 		}
 
+		sessionToken, error := utils.GenerateSecureToken()
+		if error != nil {
+			return err
+		}
+
+		err = utils.StoreSessionData(sessionToken, req.Email, utils.HashOTP(verification_code), "initiated")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to store session data"})
+		}
+
 		message := fmt.Sprintf("<h1>PanchangAPI Verificaiton</h1><br/><h3>Your verification code is <h1>%s</h1>.</h3>", verification_code)
 
 		e := email.NewEmail()
@@ -64,9 +74,7 @@ func VerifyEmail(c echo.Context) error {
 
 		utils.AddSignupAttempt(req.Email)
 
-		utils.StoreOtp(req.Email, verification_code)
-
-		return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
+		return c.JSON(http.StatusOK, map[string]string{"session": sessionToken})
 	}
 }
 
