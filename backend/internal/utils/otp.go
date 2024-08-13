@@ -8,24 +8,75 @@ import (
 	"panchangapi-gateway/internal/database"
 
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func StoreOtp(email, otp string) error {
+func StoreSessionData(sessionToken, email, hashedOTP, status string) error {
 	redisClient := database.GetRedisClient()
-	fmt.Printf("[INFO] Email: %s, OTP: %s", email, otp)
-	return redisClient.Set(context.Background(), "otp:"+email, otp, 15*time.Minute).Err()
+	err := redisClient.HSet(context.Background(), "session:"+sessionToken, "email", email, "otp", hashedOTP, "status", status).Err()
+
+	if err != nil {
+		return err
+	}
+
+	return redisClient.Expire(context.Background(), "session:"+sessionToken, 15*time.Minute).Err()
 }
 
-func VerifyOtp(email string, otp string) (bool, error) {
+func GetSessionData(sessionToken string) (string, string, error) {
 	redisClient := database.GetRedisClient()
-	storedOtp, err := redisClient.Get(context.Background(), "otp:"+email).Result()
+
+	data, err := redisClient.HGetAll(context.Background(), "session:"+sessionToken).Result()
+
+	if err != nil {
+		return "", "", err
+	}
+
+	email, ok := data["email"]
+
+	if !ok {
+		return "", "", fmt.Errorf("[ERROR] Invalid session")
+	}
+
+	status, ok := data["status"]
+
+	if !ok {
+		return "", "", fmt.Errorf("[ERROR] Invalid session")
+	}
+
+	return email, status, nil
+}
+
+func UpdateSessionStatus(sessionToken, newStatus string) error {
+	redisClient := database.GetRedisClient()
+
+	return redisClient.HSet(context.Background(), "session:"+sessionToken, "status", newStatus).Err()
+}
+
+func HashOTP(otp string) string {
+	hashedOTP, _ := bcrypt.GenerateFromPassword([]byte(otp), bcrypt.DefaultCost)
+	return string(hashedOTP)
+}
+
+func VerifyOtp(sessionToken, otp string) (bool, error) {
+	redisClient := database.GetRedisClient()
+
+	storedHashedOtp, err := redisClient.HGet(context.Background(), "session:"+sessionToken, "otp").Result()
 
 	if err == redis.Nil {
-		fmt.Println("[INFO] OTP for this email not found") // OTP not found or expired
 		return false, nil
 	} else if err != nil {
 		return false, err
 	}
 
-	return storedOtp == otp, nil
+	err = bcrypt.CompareHashAndPassword([]byte(storedHashedOtp), []byte(otp))
+
+	if err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+
+	return true, nil
 }

@@ -49,6 +49,16 @@ func VerifyEmail(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate verification code"})
 		}
 
+		sessionToken, error := utils.GenerateSecureToken()
+		if error != nil {
+			return err
+		}
+
+		err = utils.StoreSessionData(sessionToken, req.Email, utils.HashOTP(verification_code), "initiated")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to store session data"})
+		}
+
 		message := fmt.Sprintf("<h1>PanchangAPI Verificaiton</h1><br/><h3>Your verification code is <h1>%s</h1>.</h3>", verification_code)
 
 		e := email.NewEmail()
@@ -64,9 +74,7 @@ func VerifyEmail(c echo.Context) error {
 
 		utils.AddSignupAttempt(req.Email)
 
-		utils.StoreOtp(req.Email, verification_code)
-
-		return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
+		return c.JSON(http.StatusOK, map[string]string{"session": sessionToken})
 	}
 }
 
@@ -78,15 +86,28 @@ func VerifyOtp(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	verified, err := utils.VerifyOtp(req.Email, req.Otp)
-
+	email, status, err := utils.GetSessionData(req.SessionToken)
 	if err != nil {
-		fmt.Println("[ERROR] Error verifying OTP: ", err.Error())
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session"})
 	}
 
-	if verified == true {
-		return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
+	if status != "initiated" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session status"})
+	}
+
+	verified, err := utils.VerifyOtp(req.SessionToken, req.Otp)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error verifying OTP"})
+	}
+
+	if verified {
+		err := utils.UpdateSessionStatus(req.SessionToken, "verified")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "OTP verified but error in saving session status"})
+		}
+		return c.JSON(http.StatusOK, map[string]string{"status": "success"})
 	} else {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"email": req.Email})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid OTP"})
 	}
 }
