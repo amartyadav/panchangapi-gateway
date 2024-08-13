@@ -45,6 +45,7 @@ func main() {
 
 	e.GET("/sendverificationemail", handlers.VerifyEmail)
 	e.GET("/verifyotp", handlers.VerifyOtp)
+	e.GET("/createProfile", handlers.CreateProfile)
 
 	// start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
