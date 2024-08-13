@@ -86,15 +86,29 @@ func VerifyOtp(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	verified, err := utils.VerifyOtp(req.Email, req.Otp)
+	email, status, err := utils.GetSessionData(req.SessionToken)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session"})
+	}
+
+	if status != "initiated" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session status"})
+	}
+
+	verified, err := utils.VerifyOtp(email, req.Otp)
 
 	if err != nil {
 		fmt.Println("[ERROR] Error verifying OTP: ", err.Error())
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error verifying OTP"})
 	}
 
-	if verified == true {
-		return c.JSON(http.StatusOK, map[string]string{"email": req.Email})
+	if verified {
+		err := utils.UpdateSessionStatus(req.SessionToken, "verified")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "OTP verified but error in saving session status"})
+		}
+		return c.JSON(http.StatusOK, map[string]string{"status": "success"})
 	} else {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"email": req.Email})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid OTP"})
 	}
 }
