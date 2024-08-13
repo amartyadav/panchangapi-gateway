@@ -1,6 +1,6 @@
 package models
 
-type UserOtpVerificationRequest struct {
-	Email string `json:"email" binding:"required,email"`
-	Otp   string `json:"otp" binding:"required"`
+type UserOtpVerificationRequest struct { // verifyOtp endpoint
+	SessionToken string `json:"sessionToken" binding:"required"`
+	Otp          string `json:"otp" binding:"required"`
 }
