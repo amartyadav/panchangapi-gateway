@@ -43,9 +43,9 @@ func main() {
 		return c.String(http.StatusOK, "PanchangAPI Gateway")
 	})
 
-	e.GET("/sendverificationemail", handlers.VerifyEmail)
-	e.GET("/verifyotp", handlers.VerifyOtp)
-	e.GET("/createProfile", handlers.CreateProfile)
+	e.POST("/sendverificationemail", handlers.VerifyEmail)
+	e.POST("/verifyotp", handlers.VerifyOtp)
+	e.POST("/createProfile", handlers.CreateProfile)
 
 	// start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
