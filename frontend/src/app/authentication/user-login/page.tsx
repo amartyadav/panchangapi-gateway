@@ -19,9 +19,6 @@ export default function LoginPage() {
       setError("Both fields are required.");
       return;
     }
-
-    console.log("Login successful!", { username, password });
-    // Add logic to handle login
   };
 
   return (
