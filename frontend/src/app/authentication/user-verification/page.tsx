@@ -3,13 +3,35 @@
 import React, { useState } from "react";
 import { Button, Label } from "flowbite-react";
 import { HiMail } from "react-icons/hi";
-import logo from "../../../../public/logo.png";
+import axios from "axios"; 
+import { verifyEmail, verifyOtp } from "@/app/api/authAPI";
 
 export default function SendVerificationCodePage() {
   const [email, setEmail] = useState("");
+  const [sessionToken, setSessionToken] = useState("");
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSendVerificationCode = () => {
-    console.log("Verification code sent to:", email);
+  const handleSendVerificationCode = async () => {
+    try {
+     
+      setErrorMessage("");
+
+      const response = await axios.post("http://localhost:1323/verifyEmail", {
+        email,
+      });
+
+      // If the request is successful, save the session token and update state
+      setSessionToken(response.data.session);
+      setVerificationSent(true);
+
+      console.log("Verification code sent to:", email);
+    } catch (error: any) {
+   
+      setErrorMessage(
+        error.response?.data?.error || "Failed to send verification code."
+      );
+    }
   };
 
   return (
@@ -41,6 +63,14 @@ export default function SendVerificationCodePage() {
             <HiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
         </div>
+
+        {verificationSent && (
+          <p className="text-green-500 mb-4">
+            Verification code sent successfully!
+          </p>
+        )}
+
+        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 
         <Button
           onClick={handleSendVerificationCode}
