@@ -17,7 +17,7 @@ export default function SendVerificationCodePage() {
      
       setErrorMessage("");
 
-      const response = await axios.post("http://localhost:1323/verifyEmail", {
+      const response = await axios.post("http://localhost:1323/sendverificationemail", {
         email,
       });
 
