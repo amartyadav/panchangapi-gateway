@@ -2,17 +2,26 @@ version: "3.8"
 services:
   p_api:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "1323:1323"
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       p_db:
         condition: service_healthy
       p_redis:
         condition: service_started
+
+  p_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - p_api
 
   p_db:
     image: postgres:13
