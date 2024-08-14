@@ -9,6 +9,8 @@ import (
 	"panchangapi-gateway/internal/utils"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+
 )
 
 func main() {
@@ -38,6 +40,12 @@ func main() {
 
 	// setting up echo and routes, handlers
 	e := echo.New()
+
+	// using CORS middleware
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000", "http:/p_frontend:3000"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+	}))
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "PanchangAPI Gateway")
