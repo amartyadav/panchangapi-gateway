@@ -3,13 +3,43 @@
 import React, { useState } from "react";
 import { Button, Label } from "flowbite-react";
 import { HiLockClosed } from "react-icons/hi";
+import { useRouter } from "next/navigation";
+import { verifyOtp } from "@/app/api/authAPI";
 
 export default function VerifyEmailPage() {
   const [verificationCode, setVerificationCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleVerifyCode = () => {
-    console.log("Verification code entered:", verificationCode);
-    // You can add logic to verify the code here
+  const handleVerifyCode = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    // Retrieve the session token from local storage
+    const sessionToken = localStorage.getItem("sessionToken");
+
+    if (!sessionToken) {
+      setErrorMessage("Session token is missing.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await verifyOtp(sessionToken, verificationCode);
+      setSuccessMessage("Verification successful! Redirecting to login...");
+      console.log("Verification successful!");
+
+      setTimeout(() => {
+        router.push("/authentication/user-login");
+      }, 2000); 
+    } catch (error: any) {
+      setErrorMessage(error.message || "Failed to verify the code.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -37,18 +67,25 @@ export default function VerifyEmailPage() {
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
               placeholder="Enter verification code"
+              disabled={isLoading || successMessage !== ""}
             />
             <HiLockClosed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
         </div>
+
+        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+        {successMessage && (
+          <p className="text-green-500 mb-4">{successMessage}</p>
+        )}
 
         <Button
           onClick={handleVerifyCode}
           color="orange"
           size="xs"
           className="w-full text-white bg-[#723B13] text-xl font-bold py-3 rounded-md transition duration-300"
+          disabled={isLoading || successMessage !== ""}
         >
-          Verify Email
+          {isLoading ? "Verifying..." : "Verify Email"}
         </Button>
       </form>
     </div>

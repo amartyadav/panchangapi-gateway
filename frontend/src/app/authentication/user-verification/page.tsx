@@ -3,13 +3,45 @@
 import React, { useState } from "react";
 import { Button, Label } from "flowbite-react";
 import { HiMail } from "react-icons/hi";
-import logo from "../../../../public/logo.png";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function SendVerificationCodePage() {
   const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const router = useRouter();
 
-  const handleSendVerificationCode = () => {
-    console.log("Verification code sent to:", email);
+  const handleSendVerificationCode = async () => {
+    try {
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      const response = await axios.post(
+        "http://localhost:1323/sendverificationemail",
+        { email }
+      );
+
+      // Extract the session token from the response
+      const sessionToken = response.data.session;
+
+      // Save the session token in localStorage
+      localStorage.setItem("sessionToken", sessionToken);
+
+      // Set the success message
+      setSuccessMessage("Verification code sent successfully!");
+
+      console.log("Verification code sent to:", email);
+    } catch (error: any) {
+      setErrorMessage(
+        error.response?.data?.error || "Failed to send verification code."
+      );
+    }
+  };
+
+  const handleProceedToVerification = () => {
+    // Redirect to the verify-email page after the user acknowledges the success message
+    router.push("/authentication/verify-email");
   };
 
   return (
@@ -42,13 +74,29 @@ export default function SendVerificationCodePage() {
           </div>
         </div>
 
-        <Button
-          onClick={handleSendVerificationCode}
-          size="xs"
-          className="w-full text-white bg-[#723B13] text-xl font-bold py-3 rounded-md transition duration-300"
-        >
-          Send Verification Code
-        </Button>
+        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+        {successMessage && (
+          <div className="text-green-500 mb-4">
+            <p>{successMessage}</p>
+            <Button
+              onClick={handleProceedToVerification}
+              size="xs"
+              className="mt-4 w-full text-white bg-[#723B13] text-xl font-bold py-3 rounded-md transition duration-300"
+            >
+              OK
+            </Button>
+          </div>
+        )}
+
+        {!successMessage && (
+          <Button
+            onClick={handleSendVerificationCode}
+            size="xs"
+            className="w-full text-white bg-[#723B13] text-xl font-bold py-3 rounded-md transition duration-300"
+          >
+            Send Verification Code
+          </Button>
+        )}
       </form>
     </div>
   );

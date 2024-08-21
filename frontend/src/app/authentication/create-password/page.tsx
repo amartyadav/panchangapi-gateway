@@ -8,7 +8,7 @@ export default function CreatePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleCreatePassword = (e) => {
+  const handleCreatePassword = (e:any) => {
     e.preventDefault();
     setError("");
 
