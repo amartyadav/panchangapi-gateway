@@ -47,6 +47,8 @@ To see the core Panchang API in action, check out the [QuickPanchang macOS app](
 
 Guide will be added after release.
 
+## Join us on Matrix
+Head over to our Matrix Space for discussions, suggestions and chat [QuickPanchang on Matix](https://matrix.to/#/#panchang:matrix.org)
 ## Contribution
 
 Not currently accepting any contributions from the community. Sorry.
