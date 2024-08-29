@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Label } from "flowbite-react";
+import { Button, Label, Spinner } from "flowbite-react";
 import { HiMail } from "react-icons/hi";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -10,13 +10,15 @@ export default function SendVerificationCodePage() {
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
   const router = useRouter();
 
   const handleSendVerificationCode = async () => {
-    try {
-      setErrorMessage("");
-      setSuccessMessage("");
+    setLoading(true); // Start loading when the button is clicked
+    setErrorMessage("");
+    setSuccessMessage("");
 
+    try {
       const response = await axios.post(
         "http://localhost:1323/sendverificationemail",
         { email }
@@ -36,6 +38,8 @@ export default function SendVerificationCodePage() {
       setErrorMessage(
         error.response?.data?.error || "Failed to send verification code."
       );
+    } finally {
+      setLoading(false); // Stop loading once the request is complete
     }
   };
 
@@ -69,6 +73,7 @@ export default function SendVerificationCodePage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              disabled={loading} // Disable input while loading
             />
             <HiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
@@ -92,9 +97,11 @@ export default function SendVerificationCodePage() {
           <Button
             onClick={handleSendVerificationCode}
             size="xs"
-            className="w-full text-white bg-[#723B13] text-xl font-bold py-3 rounded-md transition duration-300"
+            className="w-full text-white bg-[#723B13] text-xl font-bold py-3 rounded-md transition duration-300 flex items-center justify-center"
+            disabled={loading} // Disable button while loading
           >
-            Send Verification Code
+            {loading ? <Spinner size="sm" className="mr-2" /> : null}
+            {loading ? "Sending..." : "Send Verification Code"}
           </Button>
         )}
       </form>

@@ -6,7 +6,7 @@ import Image from "next/image";
 import logo from "../../../../public/logo.png";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [username, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -56,8 +56,8 @@ export default function LoginPage() {
             id="username"
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your username"
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
           />
         </div>
 

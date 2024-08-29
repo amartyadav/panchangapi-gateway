@@ -33,8 +33,8 @@ export default function VerifyEmailPage() {
       console.log("Verification successful!");
 
       setTimeout(() => {
-        router.push("/authentication/user-login");
-      }, 2000); 
+        router.push("/authentication/create-profile");
+      }, 2000);
     } catch (error: any) {
       setErrorMessage(error.message || "Failed to verify the code.");
     } finally {
