@@ -41,7 +41,6 @@ export default function CreatePasswordPage() {
         return;
       }
 
-      // Use the API call function from the usersAPI module
       const response = await createProfile({
         sessionToken,
         password,
@@ -51,7 +50,6 @@ export default function CreatePasswordPage() {
         setError(response.error);
       } else {
         console.log("Profile created successfully!", response);
-        // Add any further logic needed after successful profile creation
       }
     } catch (error: any) {
       console.error("Failed to create profile:", error);
