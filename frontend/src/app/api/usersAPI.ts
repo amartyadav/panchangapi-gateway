@@ -18,7 +18,7 @@ export const createProfile = async (
 ): Promise<UserRegistrationResponse> => {
   try {
     const response: AxiosResponse<UserRegistrationResponse> = await axios.post(
-      `${BACKEND_URL}/createprofile`,
+      `${BACKEND_URL}/createProfile`,
       data
     );
     return response.data;
