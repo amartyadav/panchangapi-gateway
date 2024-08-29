@@ -1,14 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Label } from "flowbite-react";
+import { createProfile } from "@/app/api/usersAPI"; 
 
 export default function CreatePasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
 
-  const handleCreatePassword = (e: any) => {
+  useEffect(() => {
+    const token = localStorage.getItem("sessionToken");
+    setSessionToken(token);
+  }, []);
+
+  const handleCreatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -28,8 +35,28 @@ export default function CreatePasswordPage() {
       return;
     }
 
-    console.log("Password created successfully!");
-    // Add logic to handle password creation
+    try {
+      if (!sessionToken) {
+        setError("Session token is missing.");
+        return;
+      }
+
+      // Use the API call function from the usersAPI module
+      const response = await createProfile({
+        sessionToken,
+        password,
+      });
+
+      if (response.error) {
+        setError(response.error);
+      } else {
+        console.log("Profile created successfully!", response);
+        // Add any further logic needed after successful profile creation
+      }
+    } catch (error: any) {
+      console.error("Failed to create profile:", error);
+      setError(error.message || "Failed to create profile. Please try again.");
+    }
   };
 
   return (
