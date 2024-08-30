@@ -48,7 +48,7 @@ To see the core Panchang API in action, check out the [QuickPanchang macOS app](
 Guide will be added after release.
 
 ## Join us on Matrix
-Head over to our Matrix Space for discussions, suggestions and chat [QuickPanchang on Matix](https://matrix.to/#/#panchang:matrix.org)
+Head over to our Matrix Space for discussions, suggestions and chat: [QuickPanchang on Matrix](https://matrix.to/#/#panchang:matrix.org)
 ## Contribution
 
 Not currently accepting any contributions from the community. Sorry.
@@ -67,6 +67,10 @@ We might open source the core Panchang API in the future. Stay tuned for updates
 ## Contact
 
 For any questions or suggestions, feel free to reach out at my [email](mailto:contact@amartyadav.tech) or open an issue.
+
+## Activity
+
+![](https://repobeats.axiom.co/api/embed/04e5f4e05f2daa51f29a1e052fd5ee7c1197c9c5.svg "Repobeats analytics image")
 
 ---
 
